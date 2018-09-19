@@ -49,3 +49,15 @@
 .highlight-key {
   background-color: yellow;
 }
+
+.typed {
+  opacity: 0.75;
+}
+
+.typed-ok {
+  background-color: rgb(97, 207, 97);
+}
+
+.typed-wrong {
+  background-color: rgb(207, 97, 97);
+}

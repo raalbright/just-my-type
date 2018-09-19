@@ -21,7 +21,12 @@ const toggleKeyBoard = () => {
   }
 };
 
-const updateDisplay = () => $('#sentence').text(currentSentence);
+const updateDisplay = () => $('#sentence').html(currentSentence.split('').map((w, n) => {
+  if (w === ' ') {
+    return `<span class="space-${n}">${w}</span>`  
+  }
+  return `<span class="${w}-${n}">${w}</span>`
+}));
 
 const updateTargetLetter = () => $('#target-letter').text(currentSentence[currentLetterIndex]);
 
@@ -33,13 +38,14 @@ const toggleFeedback = (correct) => {
   }, 300);
 }
 
-const moveCursor = () => {
-  // const left = $('#yellow-block').position().left;
-  // const width = $('#yellow-block').width();
-
-  // $('#yellow-block').css({
-  //   left: `${left + width}px`
-  // });
+const moveCursor = (b) => {
+  let letter;
+  if (currentSentence[currentLetterIndex] === ' ') {
+    letter = 'space';
+  } else {
+    letter = currentSentence[currentLetterIndex]
+  }
+  $(`#sentence .${letter}-${currentLetterIndex}`).addClass(`typed typed-${(b) ? 'ok' : 'wrong'}`)
 }
 
 const calculateWordsPerMinute = () => {
@@ -50,13 +56,15 @@ const calculateWordsPerMinute = () => {
 }
 
 const checkKey = (e) => {
-  if (e.key === currentSentence[currentLetterIndex]) {
+  const correctKey = e.key === currentSentence[currentLetterIndex]
+  if (correctKey) {
     toggleFeedback(true);
   } else {
     numberOfMistakes++;
     toggleFeedback(false);
   }
 
+  moveCursor(correctKey);
   currentLetterIndex++;
 
   if (currentLetterIndex === currentSentence.length) {
@@ -67,7 +75,6 @@ const checkKey = (e) => {
   }
   checkComplete();
   updateTargetLetter();
-  moveCursor();
 };
 
 const reset = () => {
