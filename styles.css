@@ -42,3 +42,8 @@
 }
 
 #keyboard-upper-container { display: none; }
+
+
+.highlight-key {
+  background-color: yellow;
+}

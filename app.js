@@ -8,21 +8,16 @@ const toggleKeyBoard = () => {
   }
 };
 
-const highlightKey = ({ keyCode }) => {
-  // console.log(e);
-  $(`#${keyCode}`).toggleClass('.hi')
-}
-
+const highlightKey = (key) => $(`#${key.charCodeAt()}`).toggleClass('highlight-key');
 
 const init = () => {
   $(document).on('keyup keydown', ({ key }) => {
-    // console.log(e);
     if (key === 'Shift') {
       toggleKeyBoard();
+    } else {
+      highlightKey(key);
     }
   });
-
-  $(document).on('keypress', highlightKey);
 };
 
 $(document).ready(() => {
