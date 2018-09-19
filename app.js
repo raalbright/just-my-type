@@ -1,5 +1,5 @@
 // const sentences = ['ten ate neite ate nee enet ite ate inet ent eate', 'Too ato too nOt enot one totA not anot tOO aNot', 'oat itain oat tain nate eate tea anne inant nean', 'itant eate anot eat nato inate eat anot tain eat', 'nee ene ate ite tent tiet ent ine ene ete ene ate'];
-const sentences = ['ten ate neite'];
+const sentences = ['ten ate neite ate nee enet ite ate inet ent eate', 'Too ato too nOt enot one totA not anot tOO aNot'];
 
 let currentSentenceIndex = 0;
 let currentSentence = sentences[currentSentenceIndex];
@@ -44,7 +44,9 @@ const moveCursor = () => {
 
 const calculateWordsPerMinute = () => {
   const minutes = ((Date.now() - start) / 1000) / 60;
-  return (numberOfWords / (minutes - 2)) * numberOfMistakes;
+  // return (numberOfWords / (minutes - 2)) * numberOfMistakes;
+  // return ((minutes - 2) / numberOfWords) * numberOfMistakes;
+  return ((numberOfWords - numberOfMistakes) / minutes).toFixed(2);
 }
 
 const checkKey = (e) => {
