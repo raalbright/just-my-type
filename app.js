@@ -8,6 +8,11 @@ const toggleKeyBoard = () => {
   }
 };
 
+const highlightKey = ({ keyCode }) => {
+  // console.log(e);
+  $(`#${keyCode}`).toggleClass('.hi')
+}
+
 
 const init = () => {
   $(document).on('keyup keydown', ({ key }) => {
@@ -16,6 +21,8 @@ const init = () => {
       toggleKeyBoard();
     }
   });
+
+  $(document).on('keypress', highlightKey);
 };
 
 $(document).ready(() => {
