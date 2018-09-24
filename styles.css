@@ -1,6 +1,6 @@
 * {
   margin: 0;
-  padding: 0;	
+  padding: 0;
 }
 
 #prompt-container {
@@ -24,7 +24,7 @@
 }
 
 #target-letter {
-  font-size: 38px;  
+  font-size: 38px;
 }
 
 .keys-row {
@@ -34,17 +34,24 @@
 
 #feedback {
   font-size: 20px;
+  height: 25px;
 }
+
+.glyphicon {
+  display: none;
+}
+
 .glyphicon-ok {
-  color: #1DA237
+  color: #1da237;
 }
 
 .glyphicon-remove {
-  color : #CD2626
+  color: #cd2626;
 }
 
-#keyboard-upper-container { display: none; }
-
+#keyboard-upper-container {
+  display: none;
+}
 
 .highlight-key {
   background-color: yellow;

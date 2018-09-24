@@ -1,128 +1,176 @@
-// const sentences = ['ten ate neite ate nee enet ite ate inet ent eate', 'Too ato too nOt enot one totA not anot tOO aNot', 'oat itain oat tain nate eate tea anne inant nean', 'itant eate anot eat nato inate eat anot tain eat', 'nee ene ate ite tent tiet ent ine ene ete ene ate'];
-const sentences = ['ten ate neite ate nee enet ite ate inet ent eate', 'Too ato too nOt enot one totA not anot tOO aNot'];
+const View = (() => {
+  const upperKeyboard = $("#keyboard-upper-container");
+  const lowerKeyboard = $("#keyboard-lower-container");
+  const sentenceContainer = $("#sentence");
+  const targetLetterContainer = $("#target-letter");
+  let correctIcon = $('.glyphicon-ok');
+  let wrongIcon = $('.glyphicon-remove');
 
-let currentSentenceIndex = 0;
-let currentSentence = sentences[currentSentenceIndex];
-let currentLetterIndex = 0;
-let numberOfMistakes = 0;
-let numberOfWords = sentences
-  .map(sentence => sentence.split(' '))
-  .reduce((acc, k) => acc += k.length, 0);
-
-let start;
-
-const toggleKeyBoard = () => {
-  if ($('#keyboard-upper-container').is(':hidden')) {
-    $('#keyboard-upper-container').show()
-    $('#keyboard-lower-container').hide()
-  } else {
-    $('#keyboard-upper-container').hide()
-    $('#keyboard-lower-container').show()
-  }
-};
-
-const updateDisplay = () => $('#sentence').html(currentSentence.split('').map((w, n) => {
-  if (w === ' ') {
-    return `<span class="space-${n}">${w}</span>`  
-  }
-  return `<span class="${w}-${n}">${w}</span>`
-}));
-
-const updateTargetLetter = () => $('#target-letter').text(currentSentence[currentLetterIndex]);
-
-const toggleFeedback = (correct) => {
-  $('#feedback').empty();
-  $('#feedback').append(`<span class="glyphicon glyphicon-${(correct) ? 'ok' : 'remove'}">`);
-  setTimeout(() => {
-    $('#feedback').empty();
-  }, 300);
-}
-
-const moveCursor = (b) => {
-  let letter;
-  if (currentSentence[currentLetterIndex] === ' ') {
-    letter = 'space';
-  } else {
-    letter = currentSentence[currentLetterIndex]
-  }
-  $(`#sentence .${letter}-${currentLetterIndex}`).addClass(`typed typed-${(b) ? 'ok' : 'wrong'}`)
-}
-
-const calculateWordsPerMinute = () => {
-  const minutes = ((Date.now() - start) / 1000) / 60;
-  // return (numberOfWords / (minutes - 2)) * numberOfMistakes;
-  // return ((minutes - 2) / numberOfWords) * numberOfMistakes;
-  return ((numberOfWords - numberOfMistakes) / minutes).toFixed(2);
-}
-
-const checkKey = (e) => {
-  const correctKey = e.key === currentSentence[currentLetterIndex]
-  if (correctKey) {
-    toggleFeedback(true);
-  } else {
-    numberOfMistakes++;
-    toggleFeedback(false);
-  }
-
-  moveCursor(correctKey);
-  currentLetterIndex++;
-
-  if (currentLetterIndex === currentSentence.length) {
-    currentLetterIndex = 0;
-    currentSentenceIndex++;
-    currentSentence = sentences[currentSentenceIndex];
-    updateDisplay();
-  }
-  checkComplete();
-  updateTargetLetter();
-};
-
-const reset = () => {
-  currentSentenceIndex = 0;
-  numberOfMistakes = 0;
-  currentLetterIndex = 0;
-  currentSentence = sentences[currentSentenceIndex];
-  $(document).one('keypress', () => {
-    start = Date.now();
-  });
-  updateDisplay();
-  updateTargetLetter();
-}
-
-const checkComplete = () => {
-  if (currentSentenceIndex >= sentences.length) {
-    const toggleReset = confirm(`Words per minute: ${calculateWordsPerMinute()}
-Would you like to try again`);
-    if (toggleReset) {
-      reset();
-    }
-  }
-};
-
-const highlightKey = (key) => {
-  $(`#${key.charCodeAt()}`).addClass('highlight-key');
-  setTimeout(() => {
-    $(`#${key.charCodeAt()}`).removeClass('highlight-key');
-  }, 250)
-};
-
-const init = () => {
-  $(document).on('keyup keydown', ({ key }) => {
-    if (key === 'Shift') {
-      toggleKeyBoard();
+  const toggleKeyBoard = () => {
+    if (upperKeyboard.is(":hidden")) {
+      upperKeyboard.show();
+      lowerKeyboard.hide();
     } else {
-      highlightKey(key);
+      upperKeyboard.hide();
+      lowerKeyboard.show();
     }
-  });
+  };
 
-  $(document).on('keypress', checkKey);
-  $(document).one('keypress', () => {
-    start = Date.now();
-  });
-  updateDisplay();
-  updateTargetLetter();
-};
+  const toggleFeedback = isCorrect => {
+    if (isCorrect) {
+      wrongIcon.hide();
+      correctIcon.show();
+    } else {
+      correctIcon.hide();
+      wrongIcon.show();
+    }
+  };
+
+  const moveCursor = id => {
+    const selector = $(`.sentence-${id}`);
+    selector.prev().css({
+      backgroundColor: 'white'
+    });
+    selector.css({
+      backgroundColor: 'yellow'
+    });
+  };
+
+  const highlightKey = key => {
+    const keySelector = $(`#${key}`);
+    keySelector.addClass("highlight-key");
+    setTimeout(() => {
+      keySelector.removeClass("highlight-key");
+    }, 250);
+  };
+
+  const updateSentence = content => sentenceContainer.html(content);
+  const updateTargetLetter = l => targetLetterContainer.text(l);
+
+  return {
+    toggleKeyBoard,
+    toggleFeedback,
+    highlightKey,
+    updateSentence,
+    updateTargetLetter,
+    moveCursor
+  };
+})();
+
+const Model = (() => {
+  let sentences = ["hello world", "test"];
+  let currentSentenceIndex = 0;
+  let currentLetterIndex = 0;
+
+  let mistakes = 0;
+
+  let startTime;
+  let timerStarted = false;
+
+  const getCurrentSentence = () => sentences[currentSentenceIndex];
+  const getCurrentLetter = () => getCurrentSentence()[currentLetterIndex];
+
+  const incrementSentenceCounter = () => currentSentenceIndex++;
+  const incrementLetterCounter = () => currentLetterIndex++;
+  const incrementMistakesCounter = () => mistakes++;
+
+  const resetSentenceCounter = () => (currentSentenceIndex = 0);
+  const resetLetterCounter = () => (currentLetterIndex = 0);
+  const resetMistakesCounter = () => (mistakes = 0);
+
+  const startTimer = () => {
+    startTime = Date.now();
+    timerStarted = true;
+  };
+
+  const stopTimer = () => {
+    const endTime = Date.now();
+    timerStarted = false;
+    return ((endTime - startTime) / 1000) / 60;
+  };
+
+  return {
+    getCurrentSentence,
+    getCurrentLetter,
+    incrementSentenceCounter,
+    incrementLetterCounter,
+    incrementMistakesCounter,
+    resetSentenceCounter,
+    resetLetterCounter,
+    resetMistakesCounter,
+    startTimer,
+    stopTimer,
+    get sentenceIndex () { return currentSentenceIndex },
+    get letterIndex () { return currentLetterIndex },
+    get totalSentences () { return sentences.length },
+    get totalWords () { return sentences.reduce((totalWords, n) => totalWords += n.length, 0) },
+    get timerStarted () { return timerStarted }
+  };
+})();
+
+const Controller = ((view, model) => {
+  const init = () => {
+    $(document).on("keyup keydown", e => {
+      if (e.keyCode === 16) {
+        view.toggleKeyBoard();
+      } else {
+        view.highlightKey(e.key.charCodeAt(0));
+        if (!model.timerStarted) {
+          model.startTimer();
+        }
+        if (e.type === "keyup") {
+          checkKey(e);
+        }
+      }
+    });
+
+    handleDisplay();
+    view.moveCursor(model.letterIndex);
+  };
+
+  const checkKey = ({ key }) => {
+    const isCorrect = key === model.getCurrentLetter();
+    if (isCorrect) {
+      model.incrementLetterCounter();
+      if (model.letterIndex >= model.getCurrentSentence().length) {
+        model.incrementSentenceCounter();
+        model.resetLetterCounter();
+        if (model.sentenceIndex >= model.totalSentences) {
+          const totalMinutes = model.stopTimer();
+          const wpm = Math.round(model.totalWords / totalMinutes);
+          if (confirm(`You win. \nYour WPM is: ${wpm}. \nPlay again?`)) {
+            reset();
+          }
+        }
+      }
+      handleDisplay();
+      view.moveCursor(model.letterIndex);
+    } else {
+      model.incrementMistakesCounter();
+    }
+    view.toggleFeedback(isCorrect);
+  };
+
+  const handleDisplay = () => {
+    let currentSentence = model
+      .getCurrentSentence()
+      .split("")
+      .map((t, n) => `<span class="sentence-${n}">${t}</span>`);
+
+    view.updateSentence(currentSentence);
+    view.updateTargetLetter(model.getCurrentLetter());
+  };
+
+  const reset = () => {
+    model.resetSentenceCounter();
+    model.resetLetterCounter();
+    model.resetMistakesCounter();
+  };
+  return {
+    init
+  };
+})(View, Model);
 
 $(document).ready(() => {
-  init();
+  Controller.init();
 });
